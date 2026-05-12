@@ -1,11 +1,13 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { AuditResult } from '@/types';
 
+type DraftAuditResult = Omit<AuditResult, 'id' | 'createdAt' | 'aiSummary'>;
+
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-function buildPrompt(audit: Omit<AuditResult, 'aiSummary'>): string {
+function buildPrompt(audit: DraftAuditResult): string {
   const toolList = audit.recommendations
     .map(r => `- ${r.toolName} (${r.currentPlan}): $${r.currentSpend}/mo → ${r.recommendedAction === 'keep' ? 'keep' : `${r.recommendedAction} → save $${r.monthlySavings}/mo`}`)
     .join('\n');
@@ -24,7 +26,7 @@ ${toolList}
 Write a ~100-word personalized summary paragraph. Be direct and specific. Name the biggest saving opportunity first. Use plain English — no bullet points, no headers, no markdown. Speak directly to the team lead reading this. Reference their actual use case and tools. End with the annual savings figure as the punchline. Do not include generic disclaimers or filler phrases like "it's important to note."`;
 }
 
-function fallbackSummary(audit: Omit<AuditResult, 'aiSummary'>): string {
+function fallbackSummary(audit: DraftAuditResult): string {
   const { totalMonthlySavings, totalAnnualSavings, totalCurrentSpend, input, recommendations } = audit;
 
   if (totalMonthlySavings === 0) {
@@ -35,7 +37,7 @@ function fallbackSummary(audit: Omit<AuditResult, 'aiSummary'>): string {
   return `Your ${input.teamSize}-person team is spending $${totalCurrentSpend}/month on AI tools, but $${totalMonthlySavings} of that is recoverable. The biggest opportunity is ${topSaving.toolName}: ${topSaving.reason.split('.')[0]}. Across all your tools, the recommended changes would bring your monthly spend to $${audit.totalProjectedSpend} — that's $${totalAnnualSavings} back in the budget annually without any meaningful capability loss.`;
 }
 
-export async function generateAISummary(audit: Omit<AuditResult, 'aiSummary'>): Promise<string> {
+export async function generateAISummary(audit: DraftAuditResult): Promise<string> {
   if (!process.env.ANTHROPIC_API_KEY) {
     return fallbackSummary(audit);
   }

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import SharePageClient from './SharePageClient';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 async function getAudit(id: string) {
@@ -19,7 +19,8 @@ async function getAudit(id: string) {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const audit = await getAudit(params.id);
+  const { id } = await params;
+  const audit = await getAudit(id);
 
   if (!audit) {
     return { title: 'Audit not found — StackSavvy' };
@@ -41,7 +42,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      url: `${baseUrl}/share/${params.id}`,
+      url: `${baseUrl}/share/${id}`,
       siteName: 'StackSavvy',
       type: 'website',
     },
@@ -54,11 +55,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function SharePage({ params }: Props) {
-  const audit = await getAudit(params.id);
+  const { id } = await params;
+  const audit = await getAudit(id);
   if (!audit) notFound();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-  const shareUrl = `${baseUrl}/share/${params.id}`;
+  const shareUrl = `${baseUrl}/share/${id}`;
 
   return <SharePageClient audit={audit} shareUrl={shareUrl} />;
 }
