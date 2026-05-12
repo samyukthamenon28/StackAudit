@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .form-label {
+    @apply block text-xs font-medium text-stone-600 mb-1.5 uppercase tracking-wider;
+  }
+  .form-input {
+    @apply w-full px-3 py-2 text-sm border border-stone-200 rounded-lg bg-white text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-400 focus:border-transparent placeholder:text-stone-300 transition-all;
+  }
+  .submit-btn {
+    @apply w-full flex items-center justify-center gap-2 bg-stone-900 text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all;
+  }
+  .submit-btn-sm {
+    @apply flex items-center justify-center gap-1.5 bg-stone-900 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all whitespace-nowrap;
+  }
+  .tool-row {
+    @apply flex items-center gap-2 p-3 bg-stone-50 rounded-lg border border-stone-100 hover:border-stone-200 transition-colors;
+  }
+}
